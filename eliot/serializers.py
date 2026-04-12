@@ -15,14 +15,14 @@ def timestamp(dt):
 
     @return: C{unicode}
     """
-    return dt.strftime(_TIME_FORMAT)
+    pass
 
 
 def identity(value):
     """
     Return the passed in object.
     """
-    return value
+    pass
 
 
 def md5hex(data):
@@ -33,4 +33,4 @@ def md5hex(data):
 
     @return: Hex-encoded MD5 of the data.
     """
-    return md5(data).hexdigest()
+    pass

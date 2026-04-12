@@ -77,12 +77,7 @@ def compute_with_trace(*args):
         1. Retries will confuse Eliot.  Probably need different
            distributed-tree mechanism within Eliot to solve that.
     """
-    # 1. Create top-level Eliot Action:
-    with start_action(action_type="dask:compute"):
-        # In order to reduce logging verbosity, add logging to the already
-        # optimized graph:
-        optimized = optimize(*args, optimizations=[_add_logging])
-        return compute(*optimized, optimize_graph=False)
+    pass
 
 
 def persist_with_trace(*args):
@@ -93,12 +88,7 @@ def persist_with_trace(*args):
         1. Retries will confuse Eliot.  Probably need different
            distributed-tree mechanism within Eliot to solve that.
     """
-    # 1. Create top-level Eliot Action:
-    with start_action(action_type="dask:persist"):
-        # In order to reduce logging verbosity, add logging to the already
-        # optimized graph:
-        optimized = optimize(*args, optimizations=[_add_logging])
-        return persist(*optimized, optimize_graph=False)
+    pass
 
 
 def _add_logging(dsk, ignore=None):
@@ -109,64 +99,7 @@ def _add_logging(dsk, ignore=None):
 
     @return: New Dask graph.
     """
-    if isinstance(dsk, HighLevelGraph):
-        dsk = dsk.to_dict()
-
-    ctx = current_action()
-    result = {}
-
-    # Use topological sort to ensure Eliot actions are in logical order of
-    # execution in Dask:
-    keys = toposort(dsk)
-
-    # Give each key a string name. Some keys are just aliases to other
-    # keys, so make sure we have underlying key available. Later on might
-    # want to shorten them as well.
-    def simplify(k):
-        if isinstance(k, str):
-            return k
-        return "-".join(str(o) for o in k)
-
-    key_names = {}
-    for key in keys:
-        value = dsk[key]
-        if not callable(value) and ishashable(value) and value in keys:
-            # It's an alias for another key:
-            key_names[key] = key_names[value]
-        else:
-            key_names[key] = simplify(key)
-
-    # Values in the graph can be either:
-    #
-    # 1. A list of other values.
-    # 2. A tuple, where first value might be a callable, aka a task.
-    # 3. A literal of some sort.
-    def maybe_wrap(key, value):
-        if isinstance(value, list):
-            return [maybe_wrap(key, v) for v in value]
-        elif isinstance(value, tuple):
-            func = value[0]
-            args = value[1:]
-            if not callable(func):
-                # Not a callable, so nothing to wrap.
-                return value
-            wrapped_func = _RunWithEliotContext(
-                task_id=str(ctx.serialize_task_id(), "utf-8"),
-                func=func,
-                key=key_names[key],
-                dependencies=[key_names[k] for k in get_dependencies(dsk, key)],
-            )
-            return (wrapped_func,) + args
-        else:
-            return value
-
-    # Replace function with wrapper that logs appropriate Action; iterate in
-    # topological order so action task levels are in reasonable order.
-    for key in keys:
-        result[key] = maybe_wrap(key, dsk[key])
-
-    assert set(result.keys()) == set(dsk.keys())
-    return result
+    pass
 
 
 __all__ = ["compute_with_trace", "persist_with_trace"]

@@ -35,16 +35,7 @@ def sd_journal_send(**kwargs):
 
     @raise IOError: If the operation failed.
     """
-    # The function uses printf formatting, so we need to quote
-    # percentages.
-    fields = [
-        _ffi.new("char[]", key.encode("ascii") + b"=" + value.replace(b"%", b"%%"))
-        for key, value in kwargs.items()
-    ]
-    fields.append(_ffi.NULL)
-    result = _journald.sd_journal_send(*fields)
-    if result != 0:
-        raise IOError(-result, strerror(-result))
+    pass
 
 
 class JournaldDestination(object):

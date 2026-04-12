@@ -22,7 +22,7 @@ __all__ = [
 
 
 def _passthrough(result):
-    return result
+    pass
 
 
 class AlreadyFinished(Exception):
@@ -82,27 +82,7 @@ class DeferredContext(object):
         @raises AlreadyFinished: L{DeferredContext.addActionFinish} has been
             called. This indicates a programmer error.
         """
-        if self._finishAdded:
-            raise AlreadyFinished()
-
-        if errback is None:
-            errback = _passthrough
-
-        def callbackWithContext(*args, **kwargs):
-            return self._action.run(callback, *args, **kwargs)
-
-        def errbackWithContext(*args, **kwargs):
-            return self._action.run(errback, *args, **kwargs)
-
-        self.result.addCallbacks(
-            callbackWithContext,
-            errbackWithContext,
-            callbackArgs,
-            callbackKeywords,
-            errbackArgs,
-            errbackKeywords,
-        )
-        return self
+        pass
 
     def addCallback(self, callback, *args, **kw):
         """
@@ -115,9 +95,7 @@ class DeferredContext(object):
         @raises AlreadyFinished: L{DeferredContext.addActionFinish} has been
             called. This indicates a programmer error.
         """
-        return self.addCallbacks(
-            callback, _passthrough, callbackArgs=args, callbackKeywords=kw
-        )
+        pass
 
     def addErrback(self, errback, *args, **kw):
         """
@@ -130,9 +108,7 @@ class DeferredContext(object):
         @raises AlreadyFinished: L{DeferredContext.addActionFinish} has been
             called. This indicates a programmer error.
         """
-        return self.addCallbacks(
-            _passthrough, errback, errbackArgs=args, errbackKeywords=kw
-        )
+        pass
 
     def addBoth(self, callback, *args, **kw):
         """
@@ -144,7 +120,7 @@ class DeferredContext(object):
         @raises AlreadyFinished: L{DeferredContext.addActionFinish} has been
             called. This indicates a programmer error.
         """
-        return self.addCallbacks(callback, callback, args, kw, args, kw)
+        pass
 
     def addActionFinish(self):
         """
@@ -157,20 +133,7 @@ class DeferredContext(object):
         @raises AlreadyFinished: L{DeferredContext.addActionFinish} has been
             called previously. This indicates a programmer error.
         """
-        if self._finishAdded:
-            raise AlreadyFinished()
-        self._finishAdded = True
-
-        def done(result):
-            if isinstance(result, Failure):
-                exception = result.value
-            else:
-                exception = None
-            self._action.finish(exception)
-            return result
-
-        self.result.addBoth(done)
-        return self.result
+        pass
 
 
 class TwistedDestination(object):
@@ -259,7 +222,4 @@ def inline_callbacks(original, debug=False):
     want Eliot action contexts to Do The Right Thing inside the decorated
     function.
     """
-    f = eliot_friendly_generator_function(original)
-    if debug:
-        f.debug = True
-    return inlineCallbacks(f)
+    pass

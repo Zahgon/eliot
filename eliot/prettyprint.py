@@ -44,17 +44,7 @@ _first_fields = [ACTION_TYPE_FIELD, MESSAGE_TYPE_FIELD, ACTION_STATUS_FIELD]
 
 def _render_timestamp(message: dict, local_timezone: bool) -> str:
     """Convert a message's timestamp to a string."""
-    # If we were returning or storing the datetime we'd want to use an
-    # explicit timezone instead of a naive datetime, but since we're
-    # just using it for formatting we needn't bother.
-    if local_timezone:
-        dt = datetime.fromtimestamp(message[TIMESTAMP_FIELD])
-    else:
-        dt = datetime.utcfromtimestamp(message[TIMESTAMP_FIELD])
-    result = dt.isoformat(sep="T")
-    if not local_timezone:
-        result += "Z"
-    return result
+    pass
 
 
 def pretty_format(message: dict, local_timezone: bool = False) -> str:
@@ -65,34 +55,7 @@ def pretty_format(message: dict, local_timezone: bool = False) -> str:
 
     @return: Unicode string.
     """
-
-    def add_field(previous, key, value):
-        value = (
-            pprint.pformat(value, width=40).replace("\\n", "\n ").replace("\\t", "\t")
-        )
-        # Reindent second line and later to match up with first line's
-        # indentation:
-        lines = value.split("\n")
-        # indent lines are "  <key length>|  <value>"
-        indent = "{}| ".format(" " * (2 + len(key)))
-        value = "\n".join([lines[0]] + [indent + l for l in lines[1:]])
-        return "  %s: %s\n" % (key, value)
-
-    remaining = ""
-    for field in _first_fields:
-        if field in message:
-            remaining += add_field(remaining, field, message[field])
-    for key, value in sorted(message.items()):
-        if key not in _skip_fields:
-            remaining += add_field(remaining, key, value)
-
-    level = "/" + "/".join(map(str, message[TASK_LEVEL_FIELD]))
-    return "%s -> %s\n%s\n%s" % (
-        message[TASK_UUID_FIELD],
-        level,
-        _render_timestamp(message, local_timezone),
-        remaining,
-    )
+    pass
 
 
 def compact_format(message: dict, local_timezone: bool = False) -> str:
@@ -100,25 +63,7 @@ def compact_format(message: dict, local_timezone: bool = False) -> str:
 
     The message is presumed to be JSON-serializable.
     """
-    ordered_message = OrderedDict()
-    for field in _first_fields:
-        if field in message:
-            ordered_message[field] = message[field]
-    for key, value in sorted(message.items()):
-        if key not in _skip_fields:
-            ordered_message[key] = value
-    # drop { and } from JSON:
-    rendered = " ".join(
-        "{}={}".format(key, dumps(value, separators=(",", ":")))
-        for (key, value) in ordered_message.items()
-    )
-
-    return "%s%s %s %s" % (
-        message[TASK_UUID_FIELD],
-        "/" + "/".join(map(str, message[TASK_LEVEL_FIELD])),
-        _render_timestamp(message, local_timezone),
-        rendered,
-    )
+    pass
 
 
 _CLI_HELP = """\
@@ -133,41 +78,7 @@ def _main():
     Command-line program that reads in JSON from stdin and writes out
     pretty-printed messages to stdout.
     """
-    parser = argparse.ArgumentParser(
-        description=_CLI_HELP, usage="cat messages | %(prog)s [options]"
-    )
-    parser.add_argument(
-        "-c",
-        "--compact",
-        action="store_true",
-        dest="compact",
-        help="Compact format, one message per line.",
-    )
-    parser.add_argument(
-        "-l",
-        "--local-timezone",
-        action="store_true",
-        dest="local_timezone",
-        help="Use local timezone instead of UTC.",
-    )
-
-    args = parser.parse_args()
-    if args.compact:
-        formatter = compact_format
-    else:
-        formatter = pretty_format
-
-    for line in stdin:
-        try:
-            message = loads(line)
-        except ValueError:
-            stdout.write("Not JSON: {}\n\n".format(line.rstrip(b"\n")))
-            continue
-        if REQUIRED_FIELDS - set(message.keys()):
-            stdout.write("Not an Eliot message: {}\n\n".format(line.rstrip(b"\n")))
-            continue
-        result = formatter(message, args.local_timezone) + "\n"
-        stdout.write(result)
+    pass
 
 
 __all__ = ["pretty_format", "compact_format"]

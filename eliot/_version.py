@@ -70,10 +70,7 @@ def register_vcs_handler(vcs: str, method: str) -> Callable:  # decorator
 
     def decorate(f: Callable) -> Callable:
         """Store f in HANDLERS[vcs][method]."""
-        if vcs not in HANDLERS:
-            HANDLERS[vcs] = {}
-        HANDLERS[vcs][method] = f
-        return f
+        pass
 
     return decorate
 
@@ -87,47 +84,7 @@ def run_command(
     env: Optional[Dict[str, str]] = None,
 ) -> Tuple[Optional[str], Optional[int]]:
     """Call the given command(s)."""
-    assert isinstance(commands, list)
-    process = None
-
-    popen_kwargs: Dict[str, Any] = {}
-    if sys.platform == "win32":
-        # This hides the console window if pythonw.exe is used
-        startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        popen_kwargs["startupinfo"] = startupinfo
-
-    for command in commands:
-        try:
-            dispcmd = str([command] + args)
-            # remember shell=False, so use git.cmd on windows, not just git
-            process = subprocess.Popen(
-                [command] + args,
-                cwd=cwd,
-                env=env,
-                stdout=subprocess.PIPE,
-                stderr=(subprocess.PIPE if hide_stderr else None),
-                **popen_kwargs,
-            )
-            break
-        except OSError as e:
-            if e.errno == errno.ENOENT:
-                continue
-            if verbose:
-                print("unable to run %s" % dispcmd)
-                print(e)
-            return None, None
-    else:
-        if verbose:
-            print("unable to find command, tried %s" % (commands,))
-        return None, None
-    stdout = process.communicate()[0].strip().decode()
-    if process.returncode != 0:
-        if verbose:
-            print("unable to run %s (error)" % dispcmd)
-            print("stdout was %s" % stdout)
-        return None, process.returncode
-    return stdout, process.returncode
+    pass
 
 
 def versions_from_parentdir(
@@ -167,29 +124,7 @@ def versions_from_parentdir(
 @register_vcs_handler("git", "get_keywords")
 def git_get_keywords(versionfile_abs: str) -> Dict[str, str]:
     """Extract version information from the given file."""
-    # the code embedded in _version.py can just fetch the value of these
-    # keywords. When used from setup.py, we don't want to import _version.py,
-    # so we do it with a regexp instead. This function is not used from
-    # _version.py.
-    keywords: Dict[str, str] = {}
-    try:
-        with open(versionfile_abs, "r") as fobj:
-            for line in fobj:
-                if line.strip().startswith("git_refnames ="):
-                    mo = re.search(r'=\s*"(.*)"', line)
-                    if mo:
-                        keywords["refnames"] = mo.group(1)
-                if line.strip().startswith("git_full ="):
-                    mo = re.search(r'=\s*"(.*)"', line)
-                    if mo:
-                        keywords["full"] = mo.group(1)
-                if line.strip().startswith("git_date ="):
-                    mo = re.search(r'=\s*"(.*)"', line)
-                    if mo:
-                        keywords["date"] = mo.group(1)
-    except OSError:
-        pass
-    return keywords
+    pass
 
 
 @register_vcs_handler("git", "keywords")

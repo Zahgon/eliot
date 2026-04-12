@@ -114,12 +114,7 @@ class Field(object):
 
         @return: A L{Field}.
         """
-
-        def validate(checked):
-            if checked != value:
-                raise ValidationError(checked, "Field %r must be %r" % (key, value))
-
-        return klass(key, lambda _: value, description, validate)
+        pass
 
     # PEP 8 variant:
     for_value = forValue
@@ -178,9 +173,7 @@ def fields(*fields, **keys):
 
     @return: A L{list} of L{Field} instances.
     """
-    return list(fields) + [
-        Field.forTypes(key, [value], "") for key, value in keys.items()
-    ]
+    pass
 
 
 REASON = Field.forTypes(REASON_FIELD, [str], "The reason for an event.")
@@ -406,7 +399,7 @@ class ActionType(object):
         )
 
         def makeActionStatusField(value):
-            return Field.forValue(ACTION_STATUS_FIELD, value, "The action status")
+            pass
 
         startFields = startFields + [
             actionTypeField,
@@ -477,7 +470,7 @@ class ActionType(object):
 
         @rtype: L{eliot.Action}
         """
-        return self._startTask(logger, self.action_type, self._serializers, **fields)
+        pass
 
     # Backwards compatible variant:
     asTask = as_task

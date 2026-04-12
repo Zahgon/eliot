@@ -33,8 +33,7 @@ def issuperset(a, b):
     @return: Boolean indicating whether C{a} has all key/value pairs that C{b}
         does.
     """
-    aItems = a.items()
-    return all(pair in aItems for pair in b.items())
+    pass
 
 
 def assertContainsFields(test, message, fields):
@@ -49,10 +48,7 @@ def assertContainsFields(test, message, fields):
 
     @raises AssertionError: If the message doesn't contain the fields.
     """
-    messageSubset = dict(
-        [(key, value) for key, value in message.items() if key in fields]
-    )
-    test.assertEqual(messageSubset, fields)
+    pass
 
 
 class LoggedAction(PClass):
@@ -80,11 +76,11 @@ class LoggedAction(PClass):
 
     @property
     def start_message(self):
-        return self.startMessage
+        pass
 
     @property
     def end_message(self):
-        return self.endMessage
+        pass
 
     @classmethod
     def fromMessages(klass, uuid, level, messages):
@@ -110,44 +106,7 @@ class LoggedAction(PClass):
         @raises: L{ValueError} if one or both of the action's messages cannot be
             found.
         """
-        startMessage = None
-        endMessage = None
-        children = []
-        levelPrefix = level[:-1]
-
-        for message in messages:
-            if message[TASK_UUID_FIELD] != uuid:
-                # Different task altogether:
-                continue
-
-            messageLevel = message[TASK_LEVEL_FIELD]
-
-            if messageLevel[:-1] == levelPrefix:
-                status = message.get(ACTION_STATUS_FIELD)
-                if status == STARTED_STATUS:
-                    startMessage = message
-                elif status in COMPLETED_STATUSES:
-                    endMessage = message
-                else:
-                    # Presumably a message in this action:
-                    children.append(LoggedMessage(message))
-            elif (
-                len(messageLevel) == len(levelPrefix) + 2
-                and messageLevel[:-2] == levelPrefix
-                and messageLevel[-1] == 1
-            ):
-                # If start message level is [1], [1, 2, 1] implies first
-                # message of a direct child.
-                child = klass.fromMessages(uuid, message[TASK_LEVEL_FIELD], messages)
-                children.append(child)
-        if startMessage is None:
-            raise ValueError("Missing start message")
-        if endMessage is None:
-            raise ValueError(
-                "Missing end message of type "
-                + message.get(ACTION_TYPE_FIELD, "unknown")
-            )
-        return klass(startMessage, endMessage, children)
+        pass
 
     # PEP 8 variant:
     from_messages = fromMessages
@@ -164,20 +123,7 @@ class LoggedAction(PClass):
 
         @return: A C{list} of L{LoggedAction}.
         """
-        if not isinstance(actionType, str):
-            actionType = actionType.action_type
-        result = []
-        for message in messages:
-            if (
-                message.get(ACTION_TYPE_FIELD) == actionType
-                and message[ACTION_STATUS_FIELD] == STARTED_STATUS
-            ):
-                result.append(
-                    klass.fromMessages(
-                        message[TASK_UUID_FIELD], message[TASK_LEVEL_FIELD], messages
-                    )
-                )
-        return result
+        pass
 
     # Backwards compat:
     ofType = of_type
@@ -189,11 +135,7 @@ class LoggedAction(PClass):
 
         @return: An iterable of L{LoggedAction} and L{LoggedMessage} instances.
         """
-        for child in self.children:
-            yield child
-            if isinstance(child, LoggedAction):
-                for descendant in child.descendants():
-                    yield descendant
+        pass
 
     @property
     def succeeded(self):
@@ -202,7 +144,7 @@ class LoggedAction(PClass):
 
         @return: C{bool} indicating whether the action succeeded.
         """
-        return self.endMessage[ACTION_STATUS_FIELD] == SUCCEEDED_STATUS
+        pass
 
     def type_tree(self):
         """Return dictionary of all child action and message types.
@@ -213,13 +155,7 @@ class LoggedAction(PClass):
         @return: C{dict} where key is action type, and value is list of child
             types: either strings for messages, or dicts for actions.
         """
-        children = []
-        for child in self.children:
-            if isinstance(child, LoggedAction):
-                children.append(child.type_tree())
-            else:
-                children.append(child.message[MESSAGE_TYPE_FIELD])
-        return {self.startMessage[ACTION_TYPE_FIELD]: children}
+        pass
 
 
 class LoggedMessage(PClass):
@@ -246,13 +182,7 @@ class LoggedMessage(PClass):
 
         @return: A C{list} of L{LoggedMessage}.
         """
-        result = []
-        if not isinstance(messageType, str):
-            messageType = messageType.message_type
-        for message in messages:
-            if message.get(MESSAGE_TYPE_FIELD) == messageType:
-                result.append(klass(message))
-        return result
+        pass
 
     # Backwards compat:
     ofType = of_type
@@ -276,12 +206,7 @@ def check_for_errors(logger):
 
     @raise L{UnflushedTracebacks}: If any tracebacks were unflushed.
     """
-    # Check for unexpected tracebacks first, since that indicates business
-    # logic errors:
-    if logger.tracebackMessages:
-        raise UnflushedTracebacks(logger.tracebackMessages)
-    # If those are fine, validate the logging:
-    logger.validate()
+    pass
 
 
 def swap_logger(logger):
@@ -336,25 +261,7 @@ def validateLogging(
 
     def decorator(function):
         @wraps(function)
-        def wrapper(self, *args, **kwargs):
-            skipped = False
-
-            kwargs["logger"] = logger = MemoryLogger(encoder=encoder_)
-            self.addCleanup(check_for_errors, logger)
-            # TestCase runs cleanups in reverse order, and we want this to
-            # run *before* tracebacks are checked:
-            if assertion is not None:
-                self.addCleanup(
-                    lambda: skipped
-                    or assertion(self, logger, *assertionArgs, **assertionKwargs)
-                )
-            try:
-                return function(self, *args, **kwargs)
-            except SkipTest:
-                skipped = True
-                raise
-
-        return wrapper
+        pass
 
     return decorator
 
@@ -377,17 +284,7 @@ def capture_logging(
             assertion, *assertionArgs, encoder_=encoder_, **assertionKwargs
         )
         @wraps(function)
-        def wrapper(self, *args, **kwargs):
-            logger = kwargs["logger"]
-            previous_logger = swap_logger(logger)
-
-            def cleanup():
-                swap_logger(previous_logger)
-
-            self.addCleanup(cleanup)
-            return function(self, *args, **kwargs)
-
-        return wrapper
+        pass
 
     return decorator
 
@@ -417,13 +314,7 @@ def assertHasMessage(testCase, logger, messageType, fields=None):
     @raises AssertionError: No message was found, or the fields were not
         superset of given fields.
     """
-    if fields is None:
-        fields = {}
-    messages = LoggedMessage.ofType(logger.messages, messageType)
-    testCase.assertTrue(messages, "No messages of type %s" % (messageType,))
-    loggedMessage = messages[0]
-    assertContainsFields(testCase, loggedMessage.message, fields)
-    return loggedMessage
+    pass
 
 
 def assertHasAction(
@@ -459,14 +350,4 @@ def assertHasAction(
     @raises AssertionError: No action was found, or the fields were not
         superset of given fields.
     """
-    if startFields is None:
-        startFields = {}
-    if endFields is None:
-        endFields = {}
-    actions = LoggedAction.ofType(logger.messages, actionType)
-    testCase.assertTrue(actions, "No actions of type %s" % (actionType,))
-    action = actions[0]
-    testCase.assertEqual(action.succeeded, succeeded)
-    assertContainsFields(testCase, action.startMessage, startFields)
-    assertContainsFields(testCase, action.endMessage, endFields)
-    return action
+    pass

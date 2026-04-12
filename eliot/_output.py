@@ -64,7 +64,7 @@ class Destinations(object):
 
         @param fields: Keyword arguments mapping field names to values.
         """
-        self._globalFields.update(fields)
+        pass
 
     def send(self, message, logger=None):
         """
@@ -128,18 +128,7 @@ class Destinations(object):
         @param destinations: A list of callables that takes message
             dictionaries.
         """
-        buffered_messages = None
-        if not self._any_added:
-            # These are first set of messages added, so we need to clear
-            # BufferingDestination:
-            self._any_added = True
-            buffered_messages = self._destinations[0].messages
-            self._destinations = []
-        self._destinations.extend(destinations)
-        if buffered_messages:
-            # Re-deliver buffered messages:
-            for message in buffered_messages:
-                self.send(message)
+        pass
 
     def remove(self, destination):
         """
@@ -149,7 +138,7 @@ class Destinations(object):
 
         @raises ValueError: If the destination is unknown.
         """
-        self._destinations.remove(destination)
+        pass
 
 
 class ILogger(Interface):
@@ -234,13 +223,7 @@ def exclusively(f):
     Decorate a function to make it thread-safe by serializing invocations
     using a per-instance lock.
     """
-
-    @wraps(f)
-    def exclusively_f(self, *a, **kw):
-        with self._lock:
-            return f(self, *a, **kw)
-
-    return exclusively_f
+    pass
 
 
 @implementer(ILogger)
@@ -291,15 +274,7 @@ class MemoryLogger(object):
 
         @return: C{list} of flushed messages.
         """
-        result = []
-        remaining = []
-        for message in self.tracebackMessages:
-            if isinstance(message[REASON_FIELD], exceptionType):
-                result.append(message)
-            else:
-                remaining.append(message)
-        self.tracebackMessages = remaining
-        return result
+        pass
 
     # PEP 8 variant:
     flush_tracebacks = flushTracebacks
@@ -421,19 +396,7 @@ class MemoryLogger(object):
 
 
 def _json_default_from_encoder_and_json_default(encoder, json_default):
-    if encoder is not None:
-        warnings.warn(
-            "Using a JSON encoder subclass is no longer supported, please switch to using a default function",
-            DeprecationWarning,
-            stacklevel=3,
-        )
-        from .json import json_default as default_json_default
-
-        if json_default is not default_json_default:
-            raise RuntimeError("Can't pass in both encoder and default function")
-
-        json_default = _encoder_to_default_function(encoder())
-    return json_default
+    pass
 
 
 class FileDestination(PClass):
@@ -508,9 +471,7 @@ def to_file(output_file, encoder=None, json_default=json_default):
     @param json_default: A callable that handles objects the default JSON
         serializer can't handle.
     """
-    Logger._destinations.add(
-        FileDestination(file=output_file, encoder=encoder, json_default=json_default)
-    )
+    pass
 
 
 # The default Logger, used when none is specified:

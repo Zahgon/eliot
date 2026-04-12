@@ -42,21 +42,13 @@ class ThreadedWriter(Service):
         """
         Start the writer thread.
         """
-        Service.startService(self)
-        self._thread = threading.Thread(target=self._reader)
-        self._thread.start()
-        addDestination(self)
+        pass
 
     def stopService(self):
         """
         Stop the writer thread, wait for it to finish.
         """
-        Service.stopService(self)
-        removeDestination(self)
-        self._queue.put(_STOP)
-        return deferToThreadPool(
-            self._mainReactor, self._mainReactor.getThreadPool(), self._thread.join
-        )
+        pass
 
     def __call__(self, data):
         """
@@ -72,13 +64,4 @@ class ThreadedWriter(Service):
         Runs in a thread, reads messages from a queue and writes them to
         the wrapped observer.
         """
-        while True:
-            msg = self._queue.get()
-            if msg is _STOP:
-                return
-            try:
-                self._destination(msg)
-            except Exception:
-                # Lower-level destination blew up, nothing we can do, so
-                # just drop on the floor.
-                pass
+        pass

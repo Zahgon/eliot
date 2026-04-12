@@ -23,21 +23,12 @@ from ._errors import register_exception_extractor
 
 # Backwards compatibility:
 def add_destination(destination):
-    warn(
-        "add_destination is deprecated since 1.1.0. " "Use add_destinations instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    Logger._destinations.add(destination)
+    pass
 
 
 # Backwards compatibility:
 def use_asyncio_context():
-    warn(
-        "This function is no longer as needed as of Eliot 1.8.0.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
+    pass
 
 
 # Backwards compatibilty:

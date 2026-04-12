@@ -16,7 +16,7 @@ class EliotJSONEncoder(json.JSONEncoder):
     """
 
     def default(self, o):
-        return json_default(o)
+        pass
 
 
 def json_default(o: object) -> object:
@@ -26,69 +26,7 @@ def json_default(o: object) -> object:
     objects.  If you are wrapping it, call it last, as it will raise a
     ``TypeError`` on unsupported types.
     """
-    numpy = sys.modules.get("numpy", None)
-    if numpy is not None:
-        if isinstance(o, numpy.floating):
-            return float(o)
-        if isinstance(o, numpy.integer):
-            return int(o)
-        if isinstance(o, numpy.bool_):
-            return bool(o)
-        if isinstance(o, numpy.ndarray):
-            if o.size > 10000:
-                # Too big to want to log as-is, log a summary:
-                return {
-                    "array_start": o.flat[:10000].tolist(),
-                    "original_shape": o.shape,
-                }
-            else:
-                return o.tolist()
-
-    # Add Pydantic support
-    pydantic = sys.modules.get("pydantic", None)
-    if pydantic is not None and isinstance(o, pydantic.BaseModel):
-        return o.model_dump()
-
-    if isinstance(o, Path):
-        return str(o)
-
-    if isinstance(o, date):
-        return o.isoformat()
-
-    if isinstance(o, time):
-        return o.isoformat()
-
-    if isinstance(o, set):
-        return list(o)
-
-    if isinstance(o, complex):
-        return {"real": o.real, "imag": o.imag}
-
-    # Add Pandas support
-    pandas = sys.modules.get("pandas", None)
-    if pandas is not None:
-        if isinstance(o, pandas.Timestamp):
-            return o.isoformat()
-        if isinstance(o, pandas.Series):
-            return o.to_list()
-        if isinstance(o, pandas.DataFrame):
-            return o.to_dict(orient="records")
-        if isinstance(o, pandas.Interval):
-            return {"left": o.left, "right": o.right, "closed": o.closed}
-        if isinstance(o, pandas.Period):
-            return str(o)
-
-    # Add Polars support
-    polars = sys.modules.get("polars", None)
-    if polars is not None:
-        if isinstance(o, polars.Series):
-            return o.to_list()
-        if isinstance(o, polars.DataFrame):
-            return o.to_dicts()
-        if isinstance(o, polars.Datetime):
-            return o.isoformat()
-
-    raise TypeError("Unsupported type")
+    pass
 
 
 if platform.python_implementation() == "PyPy":
@@ -97,23 +35,7 @@ if platform.python_implementation() == "PyPy":
     original_json_default = json_default
 
     def json_default(o: object, original_json_default=original_json_default) -> object:
-        from datetime import datetime
-        from enum import Enum
-        from uuid import UUID
-
-        # Add dataclass support
-        if hasattr(o, "__dataclass_fields__"):
-            return {field: getattr(o, field) for field in o.__dataclass_fields__}
-        if isinstance(o, datetime):
-            return o.isoformat()
-
-        if isinstance(o, UUID):
-            return str(o)
-
-        if isinstance(o, Enum):
-            return o.value
-
-        return original_json_default(o)
+        pass
 
     json_default.__doc__ = original_json_default.__doc__
     del original_json_default
@@ -125,11 +47,7 @@ def _encoder_to_default_function(
     """
     Convert an encoder into a default function usable by ``orjson``.
     """
-
-    def default(o: object) -> object:
-        return encoder.default(o)
-
-    return default
+    pass
 
 
 try:

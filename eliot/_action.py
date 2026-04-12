@@ -69,7 +69,7 @@ class TaskLevel(object):
     # Backwards compatibility:
     @property
     def level(self):
-        return pvector(self._level)
+        pass
 
     def __lt__(self, other):
         return self._level < other._level
@@ -105,7 +105,7 @@ class TaskLevel(object):
 
         @return: L{TaskLevel} parsed from the string.
         """
-        return cls(level=[int(i) for i in string.split("/") if i])
+        pass
 
     def toString(self):
         """
@@ -113,7 +113,7 @@ class TaskLevel(object):
 
         @return: L{str} representation of the L{TaskLevel}.
         """
-        return "/" + "/".join(map(str, self._level))
+        pass
 
     def next_sibling(self):
         """
@@ -151,7 +151,7 @@ class TaskLevel(object):
         """
         Is this task a sibling of C{task_level}?
         """
-        return self.parent() == task_level.parent()
+        pass
 
     # PEP 8 compatibility:
     from_string = fromString
@@ -218,7 +218,7 @@ class Action(object):
         """
         @return str: the current action's task UUID.
         """
-        return self._identification[TASK_UUID_FIELD]
+        pass
 
     def serialize_task_id(self):
         """
@@ -228,9 +228,7 @@ class Action(object):
 
         @return: L{bytes} encoding the current location within the task.
         """
-        return "{}@{}".format(
-            self._identification[TASK_UUID_FIELD], self._nextTaskLevel().toString()
-        ).encode("ascii")
+        pass
 
     @classmethod
     def continue_task(
@@ -263,16 +261,7 @@ class Action(object):
 
         @return: The new L{Action} instance.
         """
-        if task_id is _TASK_ID_NOT_SUPPLIED:
-            raise RuntimeError("You must supply a task_id keyword argument.")
-        if isinstance(task_id, bytes):
-            task_id = task_id.decode("ascii")
-        uuid, task_level = task_id.split("@")
-        action = cls(
-            logger, uuid, TaskLevel.fromString(task_level), action_type, _serializers
-        )
-        action._start(fields)
-        return action
+        pass
 
     # Backwards-compat variants:
     serializeTaskId = serialize_task_id
@@ -327,30 +316,7 @@ class Action(object):
             which case an C{"exception"} field is added with the given
             L{Exception} type and C{"reason"} with its contents.
         """
-        if self._finished:
-            return
-        self._finished = True
-        serializer = None
-        if exception is None:
-            fields = self._successFields
-            fields[ACTION_STATUS_FIELD] = SUCCEEDED_STATUS
-            if self._serializers is not None:
-                serializer = self._serializers.success
-        else:
-            fields = _error_extraction.get_fields_for_exception(self._logger, exception)
-            fields[EXCEPTION_FIELD] = "%s.%s" % (
-                exception.__class__.__module__,
-                exception.__class__.__name__,
-            )
-            fields[REASON_FIELD] = safeunicode(exception)
-            fields[ACTION_STATUS_FIELD] = FAILED_STATUS
-            if self._serializers is not None:
-                serializer = self._serializers.failure
-
-        fields[TIMESTAMP_FIELD] = time.time()
-        fields.update(self._identification)
-        fields[TASK_LEVEL_FIELD] = self._nextTaskLevel().as_list()
-        self._logger.write(fields, serializer)
+        pass
 
     def child(self, logger, action_type, serializers=None):
         """
@@ -396,7 +362,7 @@ class Action(object):
 
         @param fields: Additional fields to add to the result message.
         """
-        self._successFields.update(fields)
+        pass
 
     # PEP 8 variant:
     add_success_fields = addSuccessFields
@@ -408,11 +374,7 @@ class Action(object):
 
         The action does NOT finish when the context is exited.
         """
-        parent = _ACTION_CONTEXT.set(self)
-        try:
-            yield self
-        finally:
-            _ACTION_CONTEXT.reset(parent)
+        pass
 
     # Python context manager implementation:
     def __enter__(self):
@@ -599,36 +561,14 @@ class WrittenAction(PClass):
 
         @return: A new C{WrittenAction}.
         """
-        actual_message = [
-            message
-            for message in [start_message, end_message] + list(children)
-            if message
-        ][0]
-        action = cls(
-            task_level=actual_message.task_level.parent(),
-            task_uuid=actual_message.task_uuid,
-        )
-        if start_message:
-            action = action._start(start_message)
-        for child in children:
-            if action._children.get(child.task_level, child) != child:
-                raise DuplicateChild(action, child)
-            action = action._add_child(child)
-        if end_message:
-            action = action._end(end_message)
-        return action
+        pass
 
     @property
     def action_type(self):
         """
         The type of this action, e.g. C{"yourapp:subsystem:dosomething"}.
         """
-        if self.start_message:
-            return self.start_message.contents[ACTION_TYPE_FIELD]
-        elif self.end_message:
-            return self.end_message.contents[ACTION_TYPE_FIELD]
-        else:
-            return None
+        pass
 
     @property
     def status(self):
@@ -636,11 +576,7 @@ class WrittenAction(PClass):
         One of C{STARTED_STATUS}, C{SUCCEEDED_STATUS}, C{FAILED_STATUS} or
         C{None}.
         """
-        message = self.end_message if self.end_message else self.start_message
-        if message:
-            return message.contents[ACTION_STATUS_FIELD]
-        else:
-            return None
+        pass
 
     @property
     def start_time(self):
@@ -648,8 +584,7 @@ class WrittenAction(PClass):
         The Unix timestamp of when the action started, or C{None} if there has
         been no start message added so far.
         """
-        if self.start_message:
-            return self.start_message.timestamp
+        pass
 
     @property
     def end_time(self):
@@ -657,8 +592,7 @@ class WrittenAction(PClass):
         The Unix timestamp of when the action ended, or C{None} if there has been
         no end message.
         """
-        if self.end_message:
-            return self.end_message.timestamp
+        pass
 
     @property
     def exception(self):
@@ -667,8 +601,7 @@ class WrittenAction(PClass):
         it to fail. If the action succeeded, or hasn't finished yet, then
         C{None}.
         """
-        if self.end_message:
-            return self.end_message.contents.get(EXCEPTION_FIELD, None)
+        pass
 
     @property
     def reason(self):
@@ -676,8 +609,7 @@ class WrittenAction(PClass):
         The reason the action failed. If the action succeeded, or hasn't finished
         yet, then C{None}.
         """
-        if self.end_message:
-            return self.end_message.contents.get(REASON_FIELD, None)
+        pass
 
     @property
     def children(self):
@@ -685,7 +617,7 @@ class WrittenAction(PClass):
         The list of child messages and actions sorted by task level, excluding the
         start and end messages.
         """
-        return pvector(sorted(self._children.values(), key=lambda m: m.task_level))
+        pass
 
     def _validate_message(self, message):
         """
@@ -718,9 +650,7 @@ class WrittenAction(PClass):
 
         @return: A new C{WrittenAction}.
         """
-        self._validate_message(message)
-        level = message.task_level
-        return self.transform(("_children", level), message)
+        pass
 
     def _start(self, start_message):
         """
@@ -759,14 +689,7 @@ class WrittenAction(PClass):
 
         @return: A new, completed C{WrittenAction}.
         """
-        action_type = end_message.contents.get(ACTION_TYPE_FIELD, None)
-        if self.action_type not in (None, action_type):
-            raise WrongActionType(self, end_message)
-        self._validate_message(end_message)
-        status = end_message.contents.get(ACTION_STATUS_FIELD, None)
-        if status not in (FAILED_STATUS, SUCCEEDED_STATUS):
-            raise InvalidStatus(self, end_message)
-        return self.set(end_message=end_message)
+        pass
 
 
 def start_action(logger=None, action_type="", _serializers=None, **fields):
@@ -867,21 +790,7 @@ def preserve_context(f):
     @return: One-time use callable that calls given function in context of
         a child of current Eliot action.
     """
-    action = current_action()
-    if action is None:
-        return f
-    task_id = action.serialize_task_id()
-    called = threading.Lock()
-
-    def restore_eliot_context(*args, **kwargs):
-        # Make sure the function has not already been called:
-        if not called.acquire(False):
-            raise TooManyCalls(f)
-
-        with Action.continue_task(task_id=task_id):
-            return f(*args, **kwargs)
-
-    return restore_eliot_context
+    pass
 
 
 def log_call(
@@ -923,21 +832,7 @@ def log_call(
 
     @wraps(wrapped_function)
     def logging_wrapper(*args, **kwargs):
-        callargs = getcallargs(wrapped_function, *args, **kwargs)
-
-        # Remove self is it's included:
-        if "self" in callargs:
-            callargs.pop("self")
-
-        # Filter arguments to log, if necessary:
-        if include_args is not None:
-            callargs = {k: callargs[k] for k in include_args}
-
-        with start_action(action_type=action_type, **callargs) as ctx:
-            result = wrapped_function(*args, **kwargs)
-            if include_result:
-                ctx.add_success_fields(result=result)
-            return result
+        pass
 
     return logging_wrapper
 

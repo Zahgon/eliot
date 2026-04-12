@@ -65,10 +65,10 @@ def _get_traceback_no_io():
             None
 
         def getline(self, *args, **kwargs):
-            return ""
+            pass
 
         def lazycache(self, *args, **kwargs):
-            return None
+            pass
 
     module.linecache = FakeLineCache()
     return module
@@ -119,8 +119,4 @@ def writeFailure(failure, logger=None):
 
     @return: None
     """
-    # Failure.getBriefTraceback does not include source code, so does not do
-    # I/O.
-    _writeTracebackMessage(
-        logger, failure.value.__class__, failure.value, failure.getBriefTraceback()
-    )
+    pass

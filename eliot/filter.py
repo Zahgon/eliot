@@ -18,9 +18,7 @@ class _DatetimeJSONEncoder(JSONEncoder):
     """
 
     def default(self, o):
-        if isinstance(o, datetime):
-            return o.isoformat()
-        return JSONEncoder.default(self, o)
+        pass
 
 
 class EliotFilter(object):

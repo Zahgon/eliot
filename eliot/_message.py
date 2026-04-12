@@ -43,13 +43,7 @@ class Message(object):
 
         @return: The new L{Message}
         """
-        warn(
-            "Message.new() is deprecated since 1.11.0, "
-            "use eliot.log_message() instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return _class(fields, _serializer)
+        pass
 
     @classmethod
     def log(_class, **fields):
@@ -95,13 +89,13 @@ class Message(object):
         """
         Return a copy of L{Message} contents.
         """
-        return self._contents.copy()
+        pass
 
     def _timestamp(self):
         """
         Return the current time.
         """
-        return self._time()
+        pass
 
     def write(self, logger=None, action=None):
         """
@@ -145,32 +139,28 @@ class WrittenMessage(PClass):
         """
         The Unix timestamp of when the message was logged.
         """
-        return self._logged_dict[TIMESTAMP_FIELD]
+        pass
 
     @property
     def task_uuid(self):
         """
         The UUID of the task in which the message was logged.
         """
-        return self._logged_dict[TASK_UUID_FIELD]
+        pass
 
     @property
     def task_level(self):
         """
         The L{TaskLevel} of this message appears within the task.
         """
-        return TaskLevel(level=self._logged_dict[TASK_LEVEL_FIELD])
+        pass
 
     @property
     def contents(self):
         """
         A C{PMap}, the message contents without Eliot metadata.
         """
-        return (
-            self._logged_dict.discard(TIMESTAMP_FIELD)
-            .discard(TASK_UUID_FIELD)
-            .discard(TASK_LEVEL_FIELD)
-        )
+        pass
 
     @classmethod
     def from_dict(cls, logged_dictionary):
@@ -180,7 +170,7 @@ class WrittenMessage(PClass):
         @param logged_dictionary: A C{PMap} representing a parsed log entry.
         @return: A L{WrittenMessage} for that dictionary.
         """
-        return cls(_logged_dict=logged_dictionary)
+        pass
 
     def as_dict(self):
         """
@@ -188,7 +178,7 @@ class WrittenMessage(PClass):
 
         @return: A C{dict}, as might be logged by Eliot.
         """
-        return self._logged_dict
+        pass
 
 
 # Import at end to deal with circular imports:
